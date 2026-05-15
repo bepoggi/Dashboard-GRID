@@ -1,0 +1,2533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Economia — __CLIENTE_NOME__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ===========================================================
+   BASE / RESET
+   =========================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #F3F4F6;
+  color: #111827;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+
+/* ===========================================================
+   VARIÁVEIS DE TEMA — GREEN TECH SOFT DARK
+   =========================================================== */
+:root {
+  --bg-base: #F3F4F6;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FAFAFA;
+  --bg-elev: #F9FAFB;
+  --bg-header: #14532D;
+  --bg-header-2: #166534;
+
+  --border: #E5E7EB;
+  --border-strong: #D1D5DB;
+
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+
+  /* === PALETA VERDE FLORESTA VIVO === */
+  --accent-deep:         #14532D;  /* verde floresta profundo — header, headers de tabela */
+  --accent-forest:       #166534;  /* verde escuro — valores de destaque, texto forte */
+  --accent-emerald:      #16A34A;  /* verde principal vivo — botões, linhas de gráfico, ícones */
+  --accent-emerald-soft: #22C55E;  /* verde médio vibrante — segunda linha, secundário */
+  --accent-leaf:         #4ADE80;  /* verde folha claro — destaques sutis */
+  --accent-mint:         #DCFCE7;  /* verde-claro fundo dos ícones */
+  --accent-mint-soft:    #F0FDF4;  /* verde-claríssimo destaque sutil de cards */
+
+  --success: #16A34A;
+  --warning: #B45309;
+  --danger: #B91C1C;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 12px 24px -8px rgba(20, 83, 45, 0.18), 0 4px 8px -4px rgba(20, 83, 45, 0.10);
+}
+
+/* ===========================================================
+   SCROLLBAR
+   =========================================================== */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* ===========================================================
+   LAYOUT
+   =========================================================== */
+.app { max-width: 1440px; margin: 0 auto; padding: 32px 40px 60px; }
+
+/* ============ HEADER ============ */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding: 18px 28px;
+  background: var(--bg-header);
+  border-radius: 12px;
+  color: #FFFFFF;
+  gap: 24px;
+  flex-wrap: wrap;
+  animation: fadeInDown 0.5s ease;
+}
+.brand { display: flex; align-items: center; }
+.brand-text h1 {
+  font-size: 16px; font-weight: 600;
+  color: #FFFFFF; letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+.brand-text p {
+  font-size: 12px; color: rgba(255, 255, 255, 0.55);
+  margin-top: 3px; font-weight: 400;
+  letter-spacing: 0.01em;
+}
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.header-right { display: flex; align-items: center; gap: 14px; }
+.header-gestor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 18px;
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+.header-gestor-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.header-gestor-logo {
+  max-height: 35px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+/* Quando o atributo src estiver vazio, mostra um placeholder discreto
+   com as dimensões reservadas — evita layout shift ao inserir a imagem */
+.header-gestor-logo[src=""],
+.header-gestor-logo:not([src]) {
+  width: 90px;
+  height: 35px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+}
+
+/* ============ TABS ============ */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 4px;
+}
+.tab-btn {
+  padding: 7px 16px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.tab-btn:hover { color: #FFFFFF; }
+.tab-btn.active {
+  background: var(--accent-emerald);
+  color: #FFFFFF;
+}
+
+/* ============ FILTRO DE PERÍODO (header) ============ */
+.period-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px;
+  border-radius: 8px;
+}
+.period-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 6px;
+}
+.period-field label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.50);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.period-input {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.18s ease;
+  color-scheme: dark;
+  min-width: 120px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.period-input:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.period-input:focus {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #22C55E;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.22);
+}
+/* Esconde o ícone nativo do calendário (Chrome/Edge) — visual mais limpo.
+   O input continua clicável: o calendário abre ao clicar no campo todo. */
+.period-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+.period-field { position: relative; }
+.period-sep {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 12px;
+  user-select: none;
+  margin: 0 2px;
+}
+.period-clear {
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.period-clear:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #FFFFFF;
+}
+.period-clear:active { transform: scale(0.92); }
+
+/* ============ CONSUMER PICKER (filtro de empresa - apenas grupo) ============ */
+.consumer-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+.consumer-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.50);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.consumer-select {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 28px 6px 10px;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.18s ease;
+  color-scheme: dark;
+  min-width: 200px;
+  max-width: 280px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  text-overflow: ellipsis;
+}
+.consumer-select:hover {
+  background-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.consumer-select:focus {
+  background-color: rgba(255, 255, 255, 0.16);
+  border-color: #22C55E;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.22);
+}
+.consumer-select option {
+  background: #14532D;
+  color: #FFFFFF;
+}
+
+/* ============ PAGE ============ */
+.page { display: none; animation: fadeIn 0.4s ease; }
+.page.active { display: block; }
+
+/* ============ KPI GRID ============ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 4px solid transparent;
+  border-radius: 12px;
+  padding: 17px 22px 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  position: relative;
+  animation: fadeInUp 0.5s ease backwards;
+}
+.kpi-card:hover {
+  border-top-color: var(--accent-emerald);
+  border-color: var(--border-strong);
+  border-top-color: var(--accent-emerald);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+.kpi-card:nth-child(1) { animation-delay: 0.05s; }
+.kpi-card:nth-child(2) { animation-delay: 0.1s; }
+.kpi-card:nth-child(3) { animation-delay: 0.15s; }
+.kpi-card:nth-child(4) { animation-delay: 0.2s; }
+.kpi-card:nth-child(5) { animation-delay: 0.25s; }
+.kpi-card:nth-child(6) { animation-delay: 0.3s; }
+.kpi-card:nth-child(7) { animation-delay: 0.35s; }
+
+.kpi-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.kpi-label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.kpi-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--accent-mint);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent-emerald);
+}
+.kpi-icon svg { width: 16px; height: 16px; }
+.kpi-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-unit { font-size: 14px; color: var(--text-secondary); font-weight: 500; margin-left: 4px; }
+.kpi-sub {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.kpi-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.kpi-trend.up { color: var(--accent-emerald); background: var(--accent-mint); }
+.kpi-trend.down { color: var(--danger); background: rgba(185, 28, 28, 0.08); }
+.kpi-highlight {
+  background: linear-gradient(135deg, var(--accent-mint-soft) 0%, #FFFFFF 100%);
+  border-color: var(--accent-mint);
+  border-top-color: var(--accent-emerald);
+}
+.kpi-highlight:hover {
+  border-top-color: var(--accent-forest);
+}
+.kpi-highlight .kpi-value { color: var(--accent-deep); }
+.kpi-highlight .kpi-icon {
+  background: var(--accent-mint);
+  color: var(--accent-forest);
+}
+
+/* ============ CHART GRID ============ */
+.chart-row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.row-2 { grid-template-columns: 2fr 1fr; }
+.row-equal { grid-template-columns: 1fr 1fr; }
+.row-3 { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 1100px) {
+  .row-2, .row-equal, .row-3 { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 4px solid transparent;
+  border-radius: 12px;
+  padding: 19px 22px 22px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease backwards;
+  animation-delay: 0.2s;
+}
+.chart-card:hover {
+  border-color: var(--border-strong);
+  border-top-color: var(--accent-emerald);
+  box-shadow: var(--shadow-hover);
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+.chart-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+.chart-subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+.chart-insight {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.chart-insight strong { color: var(--accent-deep); font-weight: 600; }
+.insight-icon {
+  flex-shrink: 0;
+  width: 14px; height: 14px;
+  color: var(--accent-emerald);
+  margin-top: 2px;
+}
+
+.chart-container { position: relative; height: 280px; width: 100%; }
+.chart-container.tall { height: 340px; }
+.chart-container.small { height: 240px; }
+
+/* ============ TABLE RESUMO MENSAL ============ */
+.table-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 4px solid transparent;
+  border-radius: 12px;
+  padding: 19px 22px 22px;
+  margin-top: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  animation: fadeInUp 0.7s ease backwards;
+  animation-delay: 0.3s;
+}
+.table-card:hover {
+  border-color: var(--border-strong);
+  border-top-color: var(--accent-emerald);
+  box-shadow: var(--shadow-hover);
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.data-table thead th {
+  text-align: left;
+  padding: 12px 14px;
+  background: var(--accent-deep);
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--accent-deep);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.data-table thead th.num { text-align: right; }
+.data-table tbody td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+.data-table tbody td.num { text-align: right; }
+.data-table tbody tr { transition: background 0.15s ease; }
+.data-table tbody tr:nth-child(even) { background: #F9FAFB; }
+.data-table tbody tr:hover { background: var(--accent-mint); }
+.data-table tbody tr.total-row {
+  background: var(--accent-mint-soft);
+  font-weight: 600;
+}
+.data-table tbody tr.total-row td {
+  border-top: 2px solid var(--accent-emerald);
+  color: var(--accent-deep);
+}
+.pos-value { color: var(--accent-emerald); font-weight: 500; }
+
+/* ============ EXPLORAÇÃO DE DADOS ============ */
+.explore-filters {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.filter-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.filter-input {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+.filter-input:hover { border-color: var(--border-strong); }
+.filter-input:focus {
+  outline: none;
+  border-color: var(--accent-emerald);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+.filter-input::placeholder { color: var(--text-muted); }
+
+/* Indicador de período ativo (read-only — espelha o header) */
+.period-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #F9FAFB;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  width: 100%;
+  height: 38px;
+  cursor: help;
+}
+.period-indicator svg { color: var(--text-muted); flex-shrink: 0; }
+.period-indicator.is-filtered {
+  background: var(--accent-mint);
+  border-color: rgba(22, 163, 74, 0.25);
+  color: var(--accent-deep);
+  font-weight: 600;
+}
+.period-indicator.is-filtered svg { color: var(--accent-emerald); }
+
+.btn {
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #FFFFFF;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn:hover {
+  border-color: var(--border-strong);
+  background: #F9FAFB;
+}
+.btn-primary {
+  background: var(--accent-emerald);
+  border-color: var(--accent-emerald);
+  color: #FFFFFF;
+}
+.btn-primary:hover {
+  background: var(--accent-forest);
+  border-color: var(--accent-forest);
+  color: #FFFFFF;
+}
+
+/* Summary strip */
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.summary-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 3px solid transparent;
+  border-radius: 12px;
+  padding: 11px 16px 14px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+.summary-chip:hover {
+  border-color: var(--border-strong);
+  border-top-color: var(--accent-emerald);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.summary-chip .label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.summary-chip .value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.summary-chip.accent {
+  background: linear-gradient(135deg, var(--accent-mint-soft) 0%, #FFFFFF 100%);
+  border-color: var(--accent-mint);
+  border-top-color: var(--accent-emerald);
+}
+.summary-chip.accent:hover { border-top-color: var(--accent-forest); }
+.summary-chip.accent .value { color: var(--accent-deep); }
+
+/* Explore table */
+.explore-table-wrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.explore-table-wrap .table-scroll {
+  overflow: auto;
+  max-height: 600px;
+}
+.explore-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.explore-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--accent-deep);
+  z-index: 3;
+  padding: 12px 14px;
+  text-align: left;
+  color: #FFFFFF;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--accent-deep);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+.explore-table thead th.num { text-align: right; }
+.explore-table thead th:hover {
+  background: var(--accent-forest);
+}
+.explore-table thead th .sort-arr {
+  display: inline-block;
+  margin-left: 4px;
+  opacity: 0.5;
+  font-size: 10px;
+  color: var(--accent-mint);
+}
+.explore-table thead th.sorted-asc .sort-arr,
+.explore-table thead th.sorted-desc .sort-arr {
+  opacity: 1;
+  color: #FFFFFF;
+}
+.explore-table tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.explore-table tbody td.num { text-align: right; }
+.explore-table tbody tr:nth-child(even) { background: #F9FAFB; }
+.explore-table tbody tr { transition: background 0.15s ease; }
+.explore-table tbody tr:hover { background: var(--accent-mint); }
+.empty-row td {
+  text-align: center;
+  padding: 40px !important;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Status badge — usado na aba Inadimplência */
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.status-badge.status-inad {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+/* Pagination */
+.pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: #F9FAFB;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.pag-info { font-size: 12px; color: var(--text-secondary); }
+.pag-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pag-btn {
+  min-width: 32px; height: 32px;
+  border: 1px solid var(--border);
+  background: #FFFFFF;
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  padding: 0 8px;
+}
+.pag-btn:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  background: #F9FAFB;
+}
+.pag-btn.active {
+  background: var(--accent-emerald);
+  border-color: var(--accent-emerald);
+  color: #FFFFFF;
+}
+.pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.page-size-select {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ============ ANIMAÇÕES ============ */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============ RESPONSIVIDADE ============ */
+@media (max-width: 768px) {
+  .app { padding: 20px 16px 40px; }
+  .header { flex-direction: column; align-items: flex-start; gap: 16px; padding: 18px 20px; }
+  .header-controls { width: 100%; flex-direction: column; align-items: stretch; gap: 14px; }
+  .header-right { width: 100%; flex-direction: column; align-items: stretch; }
+  .period-picker, .tabs { width: 100%; justify-content: center; flex-wrap: wrap; }
+  .period-picker { padding: 8px 10px; }
+  .header-gestor {
+    padding-left: 0;
+    border-left: none;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .kpi-value { font-size: 22px; }
+  .chart-container { height: 240px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ HEADER ============ -->
+  <header class="header">
+    <div class="brand">
+      <div class="brand-text">
+        <h1>RELATÓRIO DE ECONOMIA - __CLIENTE_NOME__</h1>
+        <p id="subtitle">__SUBTITLE__</p>
+      </div>
+    </div>
+    <div class="header-controls">
+      <div class="header-right">
+        <div class="tabs" role="tablist">
+          <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+          <button class="tab-btn" data-tab="explore">Exploração de Dados</button>
+          <button class="tab-btn" data-tab="inadimplencia">Inadimplência</button>
+        </div>
+        <div class="period-picker" role="group" aria-label="Filtro de período">
+          <div class="period-field">
+            <label for="periodIni">De</label>
+            <input type="month" id="periodIni" class="period-input" min="__PERIOD_MIN__" max="__PERIOD_MAX__" value="__DEFAULT_INI__">
+          </div>
+          <span class="period-sep" aria-hidden="true">→</span>
+          <div class="period-field">
+            <label for="periodFim">Até</label>
+            <input type="month" id="periodFim" class="period-input" min="__PERIOD_MIN__" max="__PERIOD_MAX__" value="__DEFAULT_FIM__">
+          </div>
+          <button class="period-clear" id="periodClear" title="Limpar período" aria-label="Limpar período">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="consumer-picker" role="group" aria-label="Filtro de empresa">
+          <label for="consumerSelect" class="consumer-label">Empresa</label>
+          <select id="consumerSelect" class="consumer-select">
+            <option value="">Visão Consolidada</option>
+          </select>
+        </div>
+      </div>
+      <div class="header-gestor" aria-label="Gestão por">
+        <span class="header-gestor-label">Gestão por:</span>
+        <img src="data:image/png;base64,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" alt="" class="header-gestor-logo" style="filter: invert(1) brightness(2); mix-blend-mode: screen;">
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ PÁGINA DASHBOARD ============ -->
+  <div class="page active" id="page-dashboard">
+
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <!-- Linha 1: Evolução (full) -->
+    <div class="chart-row" style="grid-template-columns: 1fr;">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title" id="chartEvolTitle">Evolução mensal — Consumo vs Energia Compensada</div>
+            <div class="chart-subtitle" id="chartEvolSubtitle">Linha dupla: consumo total e compensação (ambos em kWh)</div>
+          </div>
+        </div>
+        <div class="chart-container tall"><canvas id="chartEvol"></canvas></div>
+        <div class="chart-insight">
+          <svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <span id="insightEvol"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Linha 2: Economia por mês + Top Instalações -->
+    <div class="chart-row row-2">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title" id="chartTopTitle">Top 10 instalações — maior consumo</div>
+            <div class="chart-subtitle" id="chartTopSubtitle">Consumo total acumulado (kWh) no período selecionado</div>
+          </div>
+        </div>
+        <div class="chart-container tall"><canvas id="chartTop"></canvas></div>
+        <div class="chart-insight">
+          <svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18M7 14l4-4 4 4 5-5"/></svg>
+          <span id="insightTop"></span>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title" id="chartDonutTitle">Distribuição da economia</div>
+            <div class="chart-subtitle" id="chartDonutSubtitle">Participação por mês (valores absolutos)</div>
+          </div>
+        </div>
+        <div class="chart-container tall"><canvas id="chartDonut"></canvas></div>
+        <div class="chart-insight">
+          <svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10H12z"/></svg>
+          <span id="insightDonut"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Linha 3: Energia compensada + Comparativo -->
+    <div class="chart-row row-equal">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Energia compensada por mês</div>
+            <div class="chart-subtitle">Volume em kWh compensado pela geração distribuída</div>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="chartComp"></canvas></div>
+        <div class="chart-insight">
+          <svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6M12 22v-6M4 12H2M22 12h-2M6.3 6.3l-1.4-1.4M19.1 19.1l-1.4-1.4M17.7 6.3l1.4-1.4M4.9 19.1l1.4-1.4"/></svg>
+          <span id="insightComp"></span>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Valor GRID vs Valor Cemig</div>
+            <div class="chart-subtitle">Comparativo das faturas no período — quanto foi pago vs. quanto custaria</div>
+          </div>
+        </div>
+        <div class="chart-container"><canvas id="chartCompare"></canvas></div>
+        <div class="chart-insight">
+          <svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/></svg>
+          <span id="insightCompare"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabela Resumo Mensal -->
+    <div class="table-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Resumo mensal detalhado</div>
+          <div class="chart-subtitle">Valor da energia compensada e economia gerada em cada mês do período</div>
+        </div>
+      </div>
+      <div style="overflow-x:auto; margin-top: 8px;">
+        <table class="data-table" id="summaryTable">
+          <thead>
+            <tr>
+              <th>Mês/Ano</th>
+              <th class="num">Consumo (kWh)</th>
+              <th class="num">Energia Compensada (kWh)</th>
+              <th class="num">Valor GRID (R$)</th>
+              <th class="num">Valor Cemig (R$)</th>
+              <th class="num">Economia (R$)</th>
+              <th class="num">Economia %</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PÁGINA EXPLORAÇÃO ============ -->
+  <div class="page" id="page-explore">
+
+    <!-- Filtros -->
+    <div class="explore-filters">
+      <div class="filter-group">
+        <label class="filter-label">Instalação</label>
+        <select class="filter-input" id="fInstal"><option value="">Todas as instalações</option></select>
+      </div>
+      <div class="filter-group" style="grid-column: span 2;">
+        <label class="filter-label">Busca global</label>
+        <input type="text" class="filter-input" id="fBusca" placeholder="Procurar em qualquer coluna...">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Período ativo</label>
+        <div class="period-indicator" id="periodIndicator" title="Ajuste o período no cabeçalho">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span id="periodIndicatorText">Período completo</span>
+        </div>
+      </div>
+      <div class="filter-group" style="flex-direction: row; gap: 8px;">
+        <button class="btn" id="btnClear" title="Limpar instalação, busca e período">Limpar</button>
+        <button class="btn btn-primary" id="btnExport">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar CSV
+        </button>
+      </div>
+    </div>
+
+    <!-- Resumos dinâmicos -->
+    <div class="summary-strip">
+      <div class="summary-chip"><div class="label">Registros filtrados</div><div class="value" id="sumRegs">—</div></div>
+      <div class="summary-chip"><div class="label">Consumo total</div><div class="value" id="sumCons">—</div></div>
+      <div class="summary-chip"><div class="label">Energia compensada</div><div class="value" id="sumComp">—</div></div>
+      <div class="summary-chip"><div class="label">Valor Cemig (sem desconto)</div><div class="value" id="sumCemig">—</div></div>
+      <div class="summary-chip accent"><div class="label">Economia total</div><div class="value" id="sumEcon">—</div></div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="explore-table-wrap">
+      <div class="table-scroll">
+        <table class="explore-table" id="exploreTable">
+          <thead>
+            <tr id="exploreHead">
+              <th data-col="consumidor">Empresa<span class="sort-arr">▲▼</span></th>
+              <th data-col="instalacao">Instalação<span class="sort-arr">▲▼</span></th>
+              <th data-col="referencia">Referência<span class="sort-arr">▲▼</span></th>
+              <th data-col="consumo" class="num">Consumo<span class="sort-arr">▲▼</span></th>
+              <th data-col="compensada" class="num">Energia Compensada<span class="sort-arr">▲▼</span></th>
+              <th data-col="saldo" class="num">Saldo<span class="sort-arr">▲▼</span></th>
+              <th data-col="vencimento">Vencimento<span class="sort-arr">▲▼</span></th>
+              <th data-col="valorGrid" class="num">Valor GRID<span class="sort-arr">▲▼</span></th>
+              <th data-col="valorCemig" class="num">Valor Cemig<span class="sort-arr">▲▼</span></th>
+              <th data-col="economia" class="num">Economia Mensal<span class="sort-arr">▲▼</span></th>
+              <th data-col="economiaPct" class="num">Economia %<span class="sort-arr">▲▼</span></th>
+            </tr>
+          </thead>
+          <tbody id="exploreBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="pag-info" id="pagInfo">—</div>
+        <div class="pag-controls">
+          <select class="page-size-select" id="pageSize">
+            <option value="10">10</option>
+            <option value="25" selected>25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <button class="pag-btn" id="pagPrev">‹ Anterior</button>
+          <div id="pagPages" style="display:flex; gap:4px;"></div>
+          <button class="pag-btn" id="pagNext">Próxima ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PÁGINA INADIMPLÊNCIA ============ -->
+  <div class="page" id="page-inadimplencia">
+    <div class="kpi-grid" id="kpiGridInad" style="grid-template-columns: repeat(3, 1fr);"></div>
+
+    <div class="explore-table-wrap" style="margin-top: 24px;">
+      <div class="table-scroll">
+        <table class="explore-table" id="inadTable">
+          <thead>
+            <tr>
+              <th data-col-inad="instalacao">Instalação<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="consumidor">Consumidor<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="referencia">Referência<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="vencimento">Vencimento<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="status">Status<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="valorGrid" class="num">Valor Devido<span class="sort-arr">▲▼</span></th>
+            </tr>
+          </thead>
+          <tbody id="inadBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="pag-info" id="pagInfoInad">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DADOS — embutidos (830 registros, 31 instalações, 28 meses)
+   ============================================================ */
+const RAW_DATA = __RAW_DATA__;
+
+// Lista de nomes-base de consumidores no grupo, na ordem em que aparecerão
+// no dropdown e nos charts comparativos. Populada pelo gerador Python.
+const CONSUMER_NAMES = __CONSUMER_NAMES__;
+
+/* ============================================================
+   FORMATAÇÃO BR
+   ============================================================ */
+const fmtMoney = v => (v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtMoneyShort = v => {
+  const n = v || 0;
+  if (Math.abs(n) >= 1e6) return 'R$ ' + (n/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + 'M';
+  if (Math.abs(n) >= 1e3) return 'R$ ' + (n/1e3).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + 'k';
+  return fmtMoney(n);
+};
+const fmtNumber = v => (v || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 });
+const fmtNumberDec = (v,d=2) => (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtKwh = v => fmtNumber(v) + ' kWh';
+const fmtPct = v => (v * 100).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+const MONTHS_PT = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const fmtMonthLabel = ymd => {
+  const [y,m] = ymd.split('-').map(Number);
+  return MONTHS_PT[m-1] + '/' + String(y).slice(2);
+};
+const fmtDateBR = ymd => {
+  const [y,m,d] = ymd.split('-');
+  return `${d}/${m}/${y}`;
+};
+
+/* ============================================================
+   PALETA CHART.JS — Green Tech
+   ============================================================ */
+const COLORS = {
+  emerald:      '#16A34A',
+  emeraldLight: '#22C55E',
+  emeraldDark:  '#166534',
+  forest:       '#166534',
+  deep:         '#14532D',
+  mint:         '#DCFCE7',
+  muted:        '#6B7280',
+  axis:         '#9CA3AF',
+  grid:         '#F3F4F6',
+};
+const CHART_PALETTE = [
+  '#14532D','#15803D','#166534','#16A34A','#22C55E',
+  '#4ADE80','#86EFAC','#BBF7D0','#0F4A26','#1F8A3D',
+  '#3FBA5F','#A6EDB6'
+];
+
+// Paleta específica para diferenciar empresas no gráfico de Evolução Consolidada.
+// Tons sóbrios e harmônicos (verdes, metálicos, terrosos) que não competem
+// com o gradiente verde de fundo. Suporta até 7 empresas distintas.
+const CONSUMER_PALETTE = [
+  '#16A34A', // 1 — Verde Grid
+  '#14532D', // 2 — Verde escuro
+  '#94A3B8', // 3 — Prata
+  '#1F2937', // 4 — Preto suave
+  '#B8860B', // 5 — Dourado fosco
+  '#84A98C', // 6 — Verde sálvia
+  '#92400E'  // 7 — Bronze
+];
+
+// Defaults globais Chart.js — clean modern UI
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = COLORS.muted;
+Chart.defaults.plugins.tooltip.backgroundColor = '#111827';
+Chart.defaults.plugins.tooltip.titleColor = '#FFFFFF';
+Chart.defaults.plugins.tooltip.bodyColor = '#E5E7EB';
+Chart.defaults.plugins.tooltip.borderColor = 'transparent';
+Chart.defaults.plugins.tooltip.borderWidth = 0;
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 12 };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 12 };
+Chart.defaults.plugins.tooltip.boxPadding = 6;
+Chart.defaults.plugins.tooltip.displayColors = true;
+
+/* ============================================================
+   ESTADO — filtro de período é GLOBAL (afeta Dashboard + Exploração)
+   monthIni / monthFim no formato 'YYYY-MM'. String vazia = sem limite.
+   ============================================================ */
+const PERIOD_MIN = '__PERIOD_MIN__';
+const PERIOD_MAX = '__PERIOD_MAX__';
+
+// Período padrão exibido ao abrir o dashboard. O usuário pode alterar
+// livremente os inputs ou clicar em "Limpar" para ver tudo (2024-2026).
+const DEFAULT_PERIOD_INI = '__DEFAULT_INI__';
+const DEFAULT_PERIOD_FIM = '__DEFAULT_FIM__';
+
+const STATE = {
+  monthIni: DEFAULT_PERIOD_INI, // '' = sem limite inferior
+  monthFim: DEFAULT_PERIOD_FIM, // '' = sem limite superior
+  consumidor: '',       // '' = visão consolidada; nome-base = filtra apenas aquela empresa
+  charts: {},           // referências aos charts para destroy/update
+  explore: {
+    instal: '',
+    busca: '',
+    sortCol: 'referencia',
+    sortDir: 'desc',
+    page: 1,
+    pageSize: 25,
+    filtered: []
+  }
+};
+
+/* ============================================================
+   HELPERS DE AGREGAÇÃO
+   ============================================================ */
+// Filtra registros pelo intervalo de meses [monthIni, monthFim] (inclusive).
+// Strings vazias significam "sem limite". Compara YYYY-MM lexicograficamente.
+function filterByPeriod(data, monthIni, monthFim) {
+  if (!monthIni && !monthFim) return data;
+  return data.filter(r => {
+    const ym = r.referencia.slice(0, 7); // 'YYYY-MM'
+    if (monthIni && ym < monthIni) return false;
+    if (monthFim && ym > monthFim) return false;
+    return true;
+  });
+}
+
+// Filtra por consumidor (nome-base). String vazia = visão consolidada.
+function filterByConsumer(data, consumidorBase) {
+  if (!consumidorBase) return data;
+  const target = consumidorBase.toLowerCase();
+  return data.filter(r => extractNomeBase(r.consumidor || '') === target);
+}
+
+// Extrai o "nome base" do consumidor (remove sufixo de filial após " - "
+// e normaliza variações de sufixos jurídicos como S.A/S A/S/A -> SA).
+// Espelha exatamente a lógica do Python para garantir consistência.
+function extractNomeBase(consumidor) {
+  if (!consumidor) return '';
+  let base = String(consumidor).split(' - ')[0].trim().toLowerCase();
+  // Normaliza sufixos jurídicos: 's.a', 's a', 's/a' -> 'sa'
+  // (e remove ponto final de LTDA./EIRELI./ME./EPP./MEI.)
+  base = base.replace(/\b(s[\s\.\/]*a|ltda|eireli|me|epp|mei|s\/a|sa)\b\.?/g, (m, token) => {
+    const clean = token.replace(/[\.\/\s]/g, '');
+    return clean === 'sa' ? 'sa' : clean;
+  });
+  base = base.replace(/\s+/g, ' ').trim();
+  return base;
+}
+
+// Função canônica usada em TODAS as renderizações: aplica período E consumidor.
+function getFilteredData() {
+  let d = filterByPeriod(RAW_DATA, STATE.monthIni, STATE.monthFim);
+  d = filterByConsumer(d, STATE.consumidor);
+  return d;
+}
+
+function aggregateByMonth(data) {
+  const map = {};
+  data.forEach(r => {
+    const ym = r.referencia.slice(0, 7); // YYYY-MM
+    if (!map[ym]) map[ym] = { ym, consumo: 0, compensada: 0, valorGrid: 0, valorCemig: 0, economia: 0 };
+    map[ym].consumo    += r.consumo;
+    map[ym].compensada += r.compensada;
+    map[ym].valorGrid  += r.valorGrid;
+    map[ym].valorCemig += r.valorCemig;
+    map[ym].economia   += r.economia;
+  });
+  return Object.values(map).sort((a,b) => a.ym.localeCompare(b.ym));
+}
+
+function aggregateByInstallation(data) {
+  const map = {};
+  data.forEach(r => {
+    if (!map[r.instalacao]) map[r.instalacao] = { instalacao: r.instalacao, consumo: 0, compensada: 0, economia: 0 };
+    map[r.instalacao].consumo    += r.consumo;
+    map[r.instalacao].compensada += r.compensada;
+    map[r.instalacao].economia   += r.economia;
+  });
+  return Object.values(map);
+}
+
+function totals(data) {
+  return data.reduce((t, r) => {
+    t.consumo    += r.consumo;
+    t.compensada += r.compensada;
+    t.valorGrid  += r.valorGrid;
+    t.valorCemig += r.valorCemig;
+    t.economia   += r.economia;
+    return t;
+  }, { consumo: 0, compensada: 0, valorGrid: 0, valorCemig: 0, economia: 0 });
+}
+
+/* ============================================================
+   RENDERIZAÇÃO — KPIs
+   ============================================================ */
+function renderKPIs(data) {
+  const t = totals(data);
+  const unidadesAtivas = new Set(data.map(r => r.instalacao)).size;
+  const co2 = 0.046 * t.compensada;
+  const arvores = co2 / 130;
+
+  const cards = [
+    {
+      label: 'Economia Total',
+      value: fmtMoney(t.economia),
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+      sub: 'Valor total no período',
+      highlight: true
+    },
+    {
+      label: 'Economia %',
+      value: '25,0<span class="kpi-unit">%</span>',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>',
+      sub: 'Desconto fixo sobre fatura Cemig'
+    },
+    {
+      label: 'Valor Faturado (GRID)',
+      value: fmtMoney(t.valorGrid),
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>',
+      sub: `Valor Cemig: ${fmtMoney(t.valorCemig)}`
+    },
+    {
+      label: 'Energia Compensada',
+      value: fmtNumber(t.compensada) + '<span class="kpi-unit"> kWh</span>',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+      sub: `${fmtPct(t.compensada/Math.max(t.consumo,1))} do consumo compensado`
+    },
+    {
+      label: 'Unidades Ativas',
+      value: fmtNumber(unidadesAtivas),
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+      sub: `${data.length} registros no período`
+    },
+    {
+      label: 'CO₂ Evitado',
+      value: fmtNumberDec(co2, 0) + '<span class="kpi-unit"> kg</span>',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+      sub: `0,046 kg por kWh compensado`
+    },
+    {
+      label: 'Árvores Equivalentes',
+      value: fmtNumber(arvores),
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V8"/><path d="M5 12a7 7 0 0 1 14 0"/><path d="M17 5a5 5 0 0 0-10 0"/></svg>',
+      sub: `Base: 130 kg CO₂ / árvore`
+    }
+  ];
+
+  const grid = document.getElementById('kpiGrid');
+  grid.innerHTML = cards.map(c => `
+    <div class="kpi-card ${c.highlight?'kpi-highlight':''}">
+      <div class="kpi-header">
+        <span class="kpi-label">${c.label}</span>
+        <span class="kpi-icon">${c.icon}</span>
+      </div>
+      <div class="kpi-value">${c.value}</div>
+      ${c.sub ? `<div class="kpi-sub">${c.sub}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   UTIL — gradiente vertical para áreas dos charts
+   ============================================================ */
+function makeGradient(ctx, area, colorTop, colorBot) {
+  const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
+  g.addColorStop(0, colorTop);
+  g.addColorStop(1, colorBot);
+  return g;
+}
+
+/* ============================================================
+   CHART 1: Evolução — adaptativo
+   • Modo CONSOLIDADO (sem filtro de empresa): multi-linha por consumidor,
+     plotando Economia (R$) ao longo do tempo para fins de comparação.
+   • Modo FILTRADO (uma empresa selecionada): linha dupla
+     Consumo (kWh) vs Energia Compensada (kWh) — comportamento padrão.
+   ============================================================ */
+function renderEvolChart(data) {
+  const ctx = document.getElementById('chartEvol').getContext('2d');
+  if (STATE.charts.evol) STATE.charts.evol.destroy();
+
+  // Detecta se estamos em modo consolidado: SEM filtro de empresa AND base é grupo
+  const isGroupConsolidated = !STATE.consumidor && CONSUMER_NAMES.length > 1;
+  const titleEl = document.getElementById('chartEvolTitle');
+  const subEl = document.getElementById('chartEvolSubtitle');
+
+  if (isGroupConsolidated) {
+    titleEl.textContent = 'Evolução mensal — Consumo por empresa';
+    subEl.textContent = 'Consumo total (kWh) ao longo do tempo, comparado entre as empresas do grupo';
+    return renderEvolChartConsolidated(ctx, data);
+  }
+  titleEl.textContent = 'Evolução mensal — Consumo vs Energia Compensada';
+  subEl.textContent = 'Linha dupla: consumo total e compensação (ambos em kWh)';
+  return renderEvolChartSingle(ctx, data);
+}
+
+function renderEvolChartSingle(ctx, data) {
+  const monthly = aggregateByMonth(data);
+  const labels = monthly.map(m => fmtMonthLabel(m.ym + '-01'));
+  const consArr = monthly.map(m => m.consumo);
+  const compArr = monthly.map(m => m.compensada);
+
+  STATE.charts.evol = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Consumo (kWh)',
+          data: consArr,
+          yAxisID: 'y1',
+          borderColor: '#16A34A',
+          backgroundColor: (c) => {
+            const {ctx, chartArea} = c.chart;
+            if (!chartArea) return 'rgba(22, 163, 74, 0.18)';
+            return makeGradient(ctx, chartArea, 'rgba(22, 163, 74, 0.32)', 'rgba(22, 163, 74, 0.00)');
+          },
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#16A34A',
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 2
+        },
+        {
+          label: 'Energia Compensada (kWh)',
+          data: compArr,
+          yAxisID: 'y2',
+          borderColor: '#22C55E',
+          backgroundColor: 'transparent',
+          borderDash: [5, 4],
+          borderWidth: 2,
+          tension: 0.35,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          pointBackgroundColor: '#22C55E',
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 2
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 6, padding: 14 } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.dataset.yAxisID === 'y1') return ` Consumo: ${fmtKwh(ctx.raw)}`;
+              return ` Compensada: ${fmtKwh(ctx.raw)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: COLORS.grid, drawBorder: false }, ticks: { color: COLORS.muted } },
+        y1: {
+          position: 'left',
+          beginAtZero: true,
+          min: 0,
+          grid: { color: COLORS.grid, drawBorder: false },
+          ticks: { color: COLORS.muted, callback: v => (v/1000).toFixed(0) + 'k' },
+          title: { display: true, text: 'Consumo (kWh)', color: '#16A34A', font: { size: 11, weight: '600' } }
+        },
+        y2: {
+          position: 'right',
+          beginAtZero: true,
+          min: 0,
+          grid: { display: false },
+          ticks: { color: COLORS.muted, callback: v => (v/1000).toFixed(0) + 'k' },
+          title: { display: true, text: 'Compensada (kWh)', color: '#22C55E', font: { size: 11, weight: '600' } }
+        }
+      },
+      animation: { duration: 700, easing: 'easeOutQuart' }
+    }
+  });
+
+  // Insight — destaca mês de maior consumo e maior compensação
+  if (monthly.length >= 2) {
+    const maxCons = [...monthly].sort((a,b) => b.consumo - a.consumo)[0];
+    const maxComp = [...monthly].sort((a,b) => b.compensada - a.compensada)[0];
+    document.getElementById('insightEvol').innerHTML =
+      `Mês de maior consumo: <strong>${fmtMonthLabel(maxCons.ym+'-01')}</strong> com ${fmtKwh(maxCons.consumo)}. ` +
+      `Maior compensação: <strong>${fmtMonthLabel(maxComp.ym+'-01')}</strong> com ${fmtKwh(maxComp.compensada)}.`;
+  } else {
+    document.getElementById('insightEvol').innerHTML = `Dados agregados no período selecionado.`;
+  }
+}
+
+function renderEvolChartConsolidated(ctx, data) {
+  // Eixo X: todos os meses presentes em qualquer empresa, ordenados.
+  const allMonths = [...new Set(data.map(r => r.referencia.slice(0, 7)))].sort();
+  const labels = allMonths.map(ym => fmtMonthLabel(ym + '-01'));
+
+  // Uma linha por empresa, plotando Consumo (kWh). O gradiente verde brilhante
+  // por baixo é o MESMO em todas as empresas (idêntico à visão filtrada) — a
+  // diferenciação visual entre empresas vem apenas da cor da linha em si.
+  const datasets = CONSUMER_NAMES.map((nome, idx) => {
+    const dadosEmpresa = data.filter(r => extractNomeBase(r.consumidor || '') === nome.toLowerCase());
+    const consumoPorMes = {};
+    dadosEmpresa.forEach(r => {
+      const ym = r.referencia.slice(0, 7);
+      consumoPorMes[ym] = (consumoPorMes[ym] || 0) + r.consumo;
+    });
+    const serie = allMonths.map(ym => consumoPorMes[ym] || 0);
+    const cor = CONSUMER_PALETTE[idx % CONSUMER_PALETTE.length];
+
+    return {
+      label: nome.toUpperCase(),
+      data: serie,
+      borderColor: cor,
+      backgroundColor: (c) => {
+        const { ctx, chartArea } = c.chart;
+        if (!chartArea) return 'rgba(22, 163, 74, 0.18)';
+        return makeGradient(ctx, chartArea, 'rgba(22, 163, 74, 0.32)', 'rgba(22, 163, 74, 0.00)');
+      },
+      fill: true,
+      tension: 0.35,
+      borderWidth: 2,
+      borderDash: [5, 4],
+      pointRadius: 3,
+      pointHoverRadius: 6,
+      pointBackgroundColor: cor,
+      pointBorderColor: '#FFFFFF',
+      pointBorderWidth: 2
+    };
+  });
+
+  STATE.charts.evol = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          align: 'end',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            boxWidth: 6,
+            padding: 14,
+            font: { size: 11 }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (c) => ` ${c.dataset.label}: ${fmtKwh(c.raw)}`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: COLORS.grid, drawBorder: false }, ticks: { color: COLORS.muted } },
+        y: {
+          beginAtZero: true,
+          min: 0,
+          grid: { color: COLORS.grid, drawBorder: false },
+          ticks: { color: COLORS.muted, callback: v => (v/1000).toFixed(0) + 'k' },
+          title: { display: true, text: 'Consumo (kWh)', color: COLORS.muted, font: { size: 11, weight: '600' } }
+        }
+      },
+      animation: { duration: 700, easing: 'easeOutQuart' }
+    }
+  });
+
+  // Insight — empresa com maior consumo acumulado e seu mês de pico
+  const totaisPorEmpresa = datasets.map((d, idx) => ({
+    nome: d.label,
+    total: d.data.reduce((s, v) => s + v, 0),
+    pico: d.data.indexOf(Math.max(...d.data))
+  })).sort((a, b) => b.total - a.total);
+  if (totaisPorEmpresa.length && totaisPorEmpresa[0].total > 0) {
+    const top = totaisPorEmpresa[0];
+    const mesPico = top.pico >= 0 ? labels[top.pico] : '—';
+    document.getElementById('insightEvol').innerHTML =
+      `Maior consumo acumulado: <strong>${top.nome}</strong> (${fmtKwh(top.total)}), com pico em <strong>${mesPico}</strong>.`;
+  } else {
+    document.getElementById('insightEvol').innerHTML = `Dados agregados no período selecionado.`;
+  }
+}
+
+/* ============================================================
+   CHART 2: Top — adaptativo
+   • Modo CONSOLIDADO: Top Consumidores (empresas) ordenadas por Economia
+   • Modo FILTRADO: Top 10 instalações (comportamento padrão)
+   ============================================================ */
+function renderTopChart(data) {
+  const ctx = document.getElementById('chartTop').getContext('2d');
+  if (STATE.charts.top) STATE.charts.top.destroy();
+
+  const isGroupConsolidated = !STATE.consumidor && CONSUMER_NAMES.length > 1;
+  const titleEl = document.getElementById('chartTopTitle');
+  const subEl = document.getElementById('chartTopSubtitle');
+
+  if (isGroupConsolidated) {
+    titleEl.textContent = 'Top consumidores — maior economia';
+    subEl.textContent = 'Economia acumulada (R$) por empresa no período selecionado';
+    return renderTopChartConsumers(ctx, data);
+  }
+  titleEl.textContent = 'Top 10 instalações — maior consumo';
+  subEl.textContent = 'Consumo total acumulado (kWh) no período selecionado';
+  return renderTopChartInstallations(ctx, data);
+}
+
+function renderTopChartInstallations(ctx, data) {
+  const top = aggregateByInstallation(data).sort((a,b) => b.consumo - a.consumo).slice(0, 10);
+  const labels = top.map(r => r.instalacao);
+  const vals = top.map(r => r.consumo);
+
+  STATE.charts.top = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Consumo (kWh)',
+        data: vals,
+        backgroundColor: (c) => {
+          const {ctx, chartArea} = c.chart;
+          if (!chartArea) return '#2E7D4F';
+          const g = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+          g.addColorStop(0, 'rgba(34, 197, 94, 0.55)');
+          g.addColorStop(1, 'rgba(22, 101, 52, 0.95)');
+          return g;
+        },
+        borderRadius: 6,
+        borderSkipped: false,
+        barPercentage: 0.78,
+        categoryPercentage: 0.82
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const inst = top[ctx.dataIndex];
+              return [
+                ` Consumo: ${fmtKwh(inst.consumo)}`,
+                ` Compensada: ${fmtKwh(inst.compensada)}`,
+                ` Economia: ${fmtMoney(inst.economia)}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: COLORS.grid, drawBorder: false }, ticks: { color: COLORS.muted, callback: v => (v/1000).toFixed(0) + 'k' } },
+        y: { grid: { display: false }, ticks: { color: COLORS.muted, font: { size: 11 } } }
+      },
+      animation: { duration: 700, easing: 'easeOutQuart' }
+    }
+  });
+
+  if (top.length) {
+    const totCons = totals(data).consumo;
+    const share = totCons > 0 ? (top[0].consumo / totCons) * 100 : 0;
+    document.getElementById('insightTop').innerHTML =
+      `Maior consumidora: <strong>${top[0].instalacao}</strong> (${fmtKwh(top[0].consumo)}) = <strong>${share.toFixed(1)}%</strong> do total no período.`;
+  }
+}
+
+function renderTopChartConsumers(ctx, data) {
+  // Agrega economia por consumidor (nome-base)
+  const porEmpresa = {};
+  data.forEach(r => {
+    const nome = extractNomeBase(r.consumidor || '');
+    if (!nome) return;
+    if (!porEmpresa[nome]) porEmpresa[nome] = { nome, economia: 0, consumo: 0, compensada: 0 };
+    porEmpresa[nome].economia += r.economia;
+    porEmpresa[nome].consumo += r.consumo;
+    porEmpresa[nome].compensada += r.compensada;
+  });
+  const top = Object.values(porEmpresa).sort((a, b) => b.economia - a.economia);
+  const labels = top.map(r => r.nome.toUpperCase());
+  const vals = top.map(r => r.economia);
+
+  STATE.charts.top = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Economia (R$)',
+        data: vals,
+        backgroundColor: (c) => {
+          const {ctx, chartArea} = c.chart;
+          if (!chartArea) return '#2E7D4F';
+          const g = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+          g.addColorStop(0, 'rgba(34, 197, 94, 0.55)');
+          g.addColorStop(1, 'rgba(22, 101, 52, 0.95)');
+          return g;
+        },
+        borderRadius: 6,
+        borderSkipped: false,
+        barPercentage: 0.78,
+        categoryPercentage: 0.82
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const e = top[ctx.dataIndex];
+              return [
+                ` Economia: ${fmtMoney(e.economia)}`,
+                ` Consumo: ${fmtKwh(e.consumo)}`,
+                ` Compensada: ${fmtKwh(e.compensada)}`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: COLORS.grid, drawBorder: false },
+          ticks: {
+            color: COLORS.muted,
+            callback: v => v >= 1000 ? 'R$ ' + (v/1000).toFixed(0) + 'k' : 'R$ ' + v
+          }
+        },
+        y: { grid: { display: false }, ticks: { color: COLORS.muted, font: { size: 11 } } }
+      },
+      animation: { duration: 700, easing: 'easeOutQuart' }
+    }
+  });
+
+  if (top.length) {
+    const totEcon = top.reduce((s, r) => s + r.economia, 0);
+    const share = totEcon > 0 ? (top[0].economia / totEcon) * 100 : 0;
+    document.getElementById('insightTop').innerHTML =
+      `Maior economia: <strong>${top[0].nome.toUpperCase()}</strong> (${fmtMoney(top[0].economia)}) = <strong>${share.toFixed(1)}%</strong> do grupo no período.`;
+  }
+}
+
+/* ============================================================
+   CHART 3: Donut — adaptativo
+   • Modo CONSOLIDADO: Participação da economia por consumidor (R$)
+   • Modo FILTRADO: Participação da economia por mês (comportamento padrão)
+   ============================================================ */
+function renderDonutChart(data) {
+  const ctx = document.getElementById('chartDonut').getContext('2d');
+  if (STATE.charts.donut) STATE.charts.donut.destroy();
+
+  const isGroupConsolidated = !STATE.consumidor && CONSUMER_NAMES.length > 1;
+  const titleEl = document.getElementById('chartDonutTitle');
+  const subEl = document.getElementById('chartDonutSubtitle');
+
+  if (isGroupConsolidated) {
+    titleEl.textContent = 'Participação da economia';
+    subEl.textContent = 'Participação por empresa do grupo (valores absolutos)';
+    return renderDonutChartByConsumer(ctx, data);
+  }
+  titleEl.textContent = 'Distribuição da economia';
+  subEl.textContent = 'Participação por mês (valores absolutos)';
+  return renderDonutChartByMonth(ctx, data);
+}
+
+// Helper local: trunca para inteiro e formata em R$ sem casas decimais
+const fmtMoneyTrunc = v => Math.trunc(v || 0).toLocaleString('pt-BR', {
+  style: 'currency', currency: 'BRL',
+  minimumFractionDigits: 0, maximumFractionDigits: 0
+});
+
+function renderDonutChartByMonth(ctx, data) {
+  const monthly = aggregateByMonth(data);
+
+  // Para readability — se > 12 meses, agrupar top-11 + "Outros"
+  let items;
+  if (monthly.length <= 12) {
+    items = monthly.map(m => ({ label: fmtMonthLabel(m.ym + '-01'), value: m.economia }));
+  } else {
+    const sorted = [...monthly].sort((a,b) => b.economia - a.economia);
+    const top11 = sorted.slice(0, 11).map(m => ({ label: fmtMonthLabel(m.ym + '-01'), value: m.economia }));
+    const rest = sorted.slice(11).reduce((s,m) => s + m.economia, 0);
+    items = top11.concat([{ label: 'Outros', value: rest }]);
+  }
+  drawDonut(ctx, items, 'Mês com maior participação', 'right');
+}
+
+function renderDonutChartByConsumer(ctx, data) {
+  // Agrega economia por consumidor (nome-base)
+  const porEmpresa = {};
+  data.forEach(r => {
+    const nome = extractNomeBase(r.consumidor || '');
+    if (!nome) return;
+    porEmpresa[nome] = (porEmpresa[nome] || 0) + r.economia;
+  });
+  // Mantém a ordem definida em CONSUMER_NAMES (que é o que aparece no dropdown)
+  const items = CONSUMER_NAMES
+    .map(nome => ({ label: nome.toUpperCase(), value: porEmpresa[nome.toLowerCase()] || 0 }))
+    .filter(i => i.value > 0);
+  // Legenda embaixo: nomes de empresas podem ser longos, lateral cortaria
+  drawDonut(ctx, items, 'Empresa com maior participação', 'bottom');
+}
+
+function drawDonut(ctx, items, insightPrefix, legendPosition) {
+  const labels = items.map(i => i.label);
+  const vals = items.map(i => i.value);
+  const colors = labels.map((_, i) => CHART_PALETTE[i % CHART_PALETTE.length]);
+  const pos = legendPosition || 'right';
+
+  STATE.charts.donut = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: vals,
+        backgroundColor: colors,
+        borderColor: '#FFFFFF',
+        borderWidth: 2,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: pos,
+          align: pos === 'bottom' ? 'center' : 'start',
+          labels: {
+            usePointStyle: true,
+            pointStyle: 'circle',
+            boxWidth: 8,
+            padding: pos === 'bottom' ? 14 : 10,
+            font: { size: 11 },
+            generateLabels: (chart) => {
+              const ds = chart.data.datasets[0];
+              return chart.data.labels.map((l, i) => ({
+                text: `${l} — ${fmtMoneyTrunc(ds.data[i])}`,
+                fillStyle: ds.backgroundColor[i],
+                strokeStyle: ds.backgroundColor[i],
+                pointStyle: 'circle',
+                index: i
+              }));
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.label}: ${fmtMoneyTrunc(ctx.raw)}`
+          }
+        }
+      },
+      animation: { animateRotate: true, duration: 900, easing: 'easeOutQuart' }
+    }
+  });
+
+  if (items.length) {
+    const top = [...items].sort((a,b) => b.value - a.value)[0];
+    document.getElementById('insightDonut').innerHTML =
+      `${insightPrefix}: <strong>${top.label}</strong> = <strong>${fmtMoneyTrunc(top.value)}</strong> da economia total.`;
+  }
+}
+
+/* ============================================================
+   CHART 4: Energia compensada por mês (barras)
+   ============================================================ */
+function renderCompChart(data) {
+  const monthly = aggregateByMonth(data);
+  const labels = monthly.map(m => fmtMonthLabel(m.ym + '-01'));
+  const vals = monthly.map(m => m.compensada);
+
+  const ctx = document.getElementById('chartComp').getContext('2d');
+  if (STATE.charts.comp) STATE.charts.comp.destroy();
+
+  STATE.charts.comp = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Energia Compensada (kWh)',
+        data: vals,
+        backgroundColor: (c) => {
+          const {ctx, chartArea} = c.chart;
+          if (!chartArea) return '#2E7D4F';
+          return makeGradient(ctx, chartArea, 'rgba(22, 101, 52, 0.92)', 'rgba(34, 197, 94, 0.35)');
+        },
+        borderRadius: 5,
+        borderSkipped: false,
+        barPercentage: 0.75
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => ` ${fmtKwh(ctx.raw)}` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: COLORS.muted, font: { size: 10 }, maxRotation: 45, minRotation: 0 } },
+        y: { grid: { color: COLORS.grid, drawBorder: false }, ticks: { color: COLORS.muted, callback: v => (v/1000).toFixed(0) + 'k' } }
+      },
+      animation: { duration: 700, easing: 'easeOutQuart' }
+    }
+  });
+
+  if (monthly.length) {
+    const avg = vals.reduce((s,v) => s + v, 0) / vals.length;
+    const tot = vals.reduce((s,v) => s + v, 0);
+    document.getElementById('insightComp').innerHTML =
+      `Média mensal: <strong>${fmtKwh(avg)}</strong> • Acumulado: <strong>${fmtKwh(tot)}</strong>.`;
+  }
+}
+
+/* ============================================================
+   CHART 5: Comparativo GRID vs Cemig (donut)
+   ============================================================ */
+function renderCompareChart(data) {
+  const t = totals(data);
+
+  // Trunca (não arredonda) para inteiro — aplicado aos rótulos exibidos neste gráfico
+  // Ex.: 361623.98 -> 361623  (não 361624)
+  const truncInt = v => Math.trunc(v || 0);
+  const fmtMoneyTrunc = v => truncInt(v).toLocaleString('pt-BR', {
+    style: 'currency', currency: 'BRL',
+    minimumFractionDigits: 0, maximumFractionDigits: 0
+  });
+
+  const tGridTrunc  = truncInt(t.valorGrid);
+  const tEconTrunc  = truncInt(t.economia);
+  const tCemigTrunc = truncInt(t.valorCemig);
+
+  const ctx = document.getElementById('chartCompare').getContext('2d');
+  if (STATE.charts.compare) STATE.charts.compare.destroy();
+
+  STATE.charts.compare = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Valor GRID (pago)', 'Economia obtida'],
+      datasets: [{
+        // Valores truncados já entram aqui, garantindo consistência total
+        data: [tGridTrunc, tEconTrunc],
+        backgroundColor: ['#14532D', '#16A34A'],
+        borderColor: '#FFFFFF',
+        borderWidth: 3,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '70%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 14, font: { size: 12 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const pct = tCemigTrunc > 0 ? Math.trunc((ctx.raw / tCemigTrunc) * 100) : 0;
+              return ` ${ctx.label}: ${fmtMoneyTrunc(ctx.raw)} (${pct}% do Cemig)`;
+            }
+          }
+        }
+      },
+      animation: { animateRotate: true, duration: 900, easing: 'easeOutQuart' }
+    },
+    plugins: [{
+      id: 'centerText',
+      afterDraw: (chart) => {
+        const { ctx, chartArea: { left, right, top, bottom } } = chart;
+        const cx = (left + right) / 2;
+        const cy = (top + bottom) / 2;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#6B7280';
+        ctx.font = '500 11px Inter';
+        ctx.fillText('Total Cemig (sem desconto)', cx, cy - 14);
+        ctx.fillStyle = '#14532D';
+        ctx.font = '700 18px Inter';
+        // Exibe total truncado (sem decimais) — consistente com os demais rótulos
+        const totalShort = tCemigTrunc >= 1e6
+          ? 'R$ ' + (tCemigTrunc/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) + 'M'
+          : tCemigTrunc >= 1e3
+            ? 'R$ ' + (tCemigTrunc/1e3).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + 'k'
+            : fmtMoneyTrunc(tCemigTrunc);
+        ctx.fillText(totalShort, cx, cy + 6);
+        ctx.restore();
+      }
+    }]
+  });
+
+  const pctEconomia = tCemigTrunc > 0 ? (tEconTrunc / tCemigTrunc) * 100 : 0;
+  const pctEconomiaTrunc = Math.trunc(pctEconomia);
+  document.getElementById('insightCompare').innerHTML =
+    `Economia representa <strong>${pctEconomiaTrunc}%</strong> do que seria pago diretamente à Cemig — <strong>${fmtMoneyTrunc(tEconTrunc)}</strong> preservados.`;
+}
+
+/* ============================================================
+   TABELA RESUMO MENSAL
+   ============================================================ */
+function renderSummaryTable(data) {
+  const monthly = aggregateByMonth(data);
+  const tot = totals(data);
+  const tbody = document.querySelector('#summaryTable tbody');
+  const rows = monthly.map(m => `
+    <tr>
+      <td>${fmtMonthLabel(m.ym + '-01')}</td>
+      <td class="num">${fmtNumber(m.consumo)}</td>
+      <td class="num">${fmtNumber(m.compensada)}</td>
+      <td class="num">${fmtMoney(m.valorGrid)}</td>
+      <td class="num">${fmtMoney(m.valorCemig)}</td>
+      <td class="num pos-value">${fmtMoney(m.economia)}</td>
+      <td class="num">25,0%</td>
+    </tr>
+  `).join('');
+  const totalRow = `
+    <tr class="total-row">
+      <td>TOTAL</td>
+      <td class="num">${fmtNumber(tot.consumo)}</td>
+      <td class="num">${fmtNumber(tot.compensada)}</td>
+      <td class="num">${fmtMoney(tot.valorGrid)}</td>
+      <td class="num">${fmtMoney(tot.valorCemig)}</td>
+      <td class="num">${fmtMoney(tot.economia)}</td>
+      <td class="num">25,0%</td>
+    </tr>
+  `;
+  tbody.innerHTML = rows + totalRow;
+}
+
+/* ============================================================
+   ATUALIZAR DASHBOARD COMPLETO
+   ============================================================ */
+/* ============================================================
+   FORMATAÇÃO DO PERÍODO PARA EXIBIÇÃO
+   ============================================================ */
+function describePeriod() {
+  const ini = STATE.monthIni;
+  const fim = STATE.monthFim;
+  if (!ini && !fim) return '__SUBTITLE__';
+  if (ini && fim) {
+    if (ini === fim) return fmtMonthLabel(ini + '-01');
+    return `${fmtMonthLabel(ini + '-01')} — ${fmtMonthLabel(fim + '-01')}`;
+  }
+  if (ini && !fim) return `A partir de ${fmtMonthLabel(ini + '-01')}`;
+  return `Até ${fmtMonthLabel(fim + '-01')}`;
+}
+
+function isPeriodFiltered() {
+  return Boolean(STATE.monthIni || STATE.monthFim);
+}
+
+function updateDashboard() {
+  const data = getFilteredData();
+  renderKPIs(data);
+  renderEvolChart(data);
+  renderTopChart(data);
+  renderDonutChart(data);
+  renderCompChart(data);
+  renderCompareChart(data);
+  renderSummaryTable(data);
+
+  // Subtitle reflete o período escolhido
+  document.getElementById('subtitle').textContent = describePeriod();
+}
+
+/* ============================================================
+   TABS — troca de páginas
+   ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + tab).classList.add('active');
+    if (tab === 'explore') renderExploreTable();
+    if (tab === 'inadimplencia') renderInadimplencia();
+  });
+});
+
+/* ============================================================
+   FILTRO DE PERÍODO GLOBAL — controla Dashboard + Exploração
+   Inputs month no header. Estado em STATE.monthIni / STATE.monthFim.
+   ============================================================ */
+const periodIniEl = document.getElementById('periodIni');
+const periodFimEl = document.getElementById('periodFim');
+
+function clampToValidRange(ym) {
+  if (!ym) return ym;
+  if (ym < PERIOD_MIN) return PERIOD_MIN;
+  if (ym > PERIOD_MAX) return PERIOD_MAX;
+  return ym;
+}
+
+function applyPeriodChange() {
+  let ini = clampToValidRange(periodIniEl.value || '');
+  let fim = clampToValidRange(periodFimEl.value || '');
+
+  // Se ambos preenchidos e invertidos, troca para manter coerência
+  if (ini && fim && ini > fim) {
+    [ini, fim] = [fim, ini];
+    periodIniEl.value = ini;
+    periodFimEl.value = fim;
+  } else if (ini !== periodIniEl.value || fim !== periodFimEl.value) {
+    // Reflete eventual clamp no input
+    periodIniEl.value = ini;
+    periodFimEl.value = fim;
+  }
+
+  STATE.monthIni = ini;
+  STATE.monthFim = fim;
+
+  // Atualiza todas as abas — fonte única da verdade
+  updateDashboard();
+  applyExploreFilters();
+  renderInadimplencia();
+  updatePeriodIndicator();
+}
+
+periodIniEl.addEventListener('change', applyPeriodChange);
+periodFimEl.addEventListener('change', applyPeriodChange);
+
+document.getElementById('periodClear').addEventListener('click', () => {
+  periodIniEl.value = '';
+  periodFimEl.value = '';
+  STATE.monthIni = '';
+  STATE.monthFim = '';
+  updateDashboard();
+  applyExploreFilters();
+  renderInadimplencia();
+  updatePeriodIndicator();
+});
+
+// Atualiza o "chip" indicador na aba Exploração
+function updatePeriodIndicator() {
+  const el  = document.getElementById('periodIndicator');
+  const txt = document.getElementById('periodIndicatorText');
+  if (!el || !txt) return;
+  txt.textContent = describePeriod();
+  el.classList.toggle('is-filtered', isPeriodFiltered());
+}
+
+/* ============================================================
+   EXPLORAÇÃO DE DADOS
+   ============================================================ */
+function populateInstalacaoSelect() {
+  const sel = document.getElementById('fInstal');
+  // Considera apenas instalações pertencentes ao consumidor selecionado.
+  // Sem consumidor (Visão Consolidada), mostra todas.
+  const dadosFiltrados = filterByConsumer(RAW_DATA, STATE.consumidor);
+  const unicas = [...new Set(dadosFiltrados.map(r => r.instalacao))].sort();
+  sel.innerHTML = '<option value="">Todas as instalações</option>' +
+    unicas.map(i => `<option value="${i}">${i}</option>`).join('');
+}
+
+function applyExploreFilters() {
+  const s = STATE.explore;
+
+  // Começa pelo conjunto já filtrado pelos filtros GLOBAIS (período + consumidor)
+  let rows = getFilteredData();
+
+  // Filtros locais da aba Exploração
+  if (s.instal) rows = rows.filter(r => r.instalacao === s.instal);
+  if (s.busca) {
+    const q = s.busca.toLowerCase().trim();
+    rows = rows.filter(r => {
+      return r.instalacao.toLowerCase().includes(q) ||
+             (r.consumidor || '').toLowerCase().includes(q) ||
+             r.referencia.includes(q) ||
+             r.vencimento.includes(q) ||
+             String(r.consumo).includes(q) ||
+             String(r.compensada).includes(q) ||
+             String(r.valorGrid).includes(q) ||
+             String(r.valorCemig).includes(q) ||
+             String(r.economia).includes(q);
+    });
+  }
+
+  // Ordenação
+  const col = s.sortCol, dir = s.sortDir;
+  rows.sort((a,b) => {
+    let va = a[col], vb = b[col];
+    if (col === 'referencia' || col === 'vencimento' || col === 'instalacao' || col === 'consumidor') {
+      va = String(va || ''); vb = String(vb || '');
+      return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    }
+    return dir === 'asc' ? va - vb : vb - va;
+  });
+
+  s.filtered = rows;
+  s.page = 1; // reset ao aplicar filtro
+  renderExploreTable();
+}
+
+function renderExploreTable() {
+  const s = STATE.explore;
+  if (!s.filtered.length && !s.instal && !s.busca && !STATE.monthIni && !STATE.monthFim) {
+    // primeira renderização — mostra tudo, ordenado por referência decrescente
+    s.filtered = RAW_DATA.slice();
+    s.filtered.sort((a,b) => b.referencia.localeCompare(a.referencia));
+  }
+
+  const total = s.filtered.length;
+  const ps = s.pageSize;
+  const totalPages = Math.max(1, Math.ceil(total / ps));
+  if (s.page > totalPages) s.page = totalPages;
+  const start = (s.page - 1) * ps;
+  const end = start + ps;
+  const pageRows = s.filtered.slice(start, end);
+
+  const tbody = document.getElementById('exploreBody');
+  if (!pageRows.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="11">Nenhum registro encontrado com os filtros aplicados.</td></tr>`;
+  } else {
+    tbody.innerHTML = pageRows.map(r => `
+      <tr>
+        <td>${extractNomeBase(r.consumidor || '').toUpperCase() || '—'}</td>
+        <td>${r.instalacao}</td>
+        <td>${fmtDateBR(r.referencia)}</td>
+        <td class="num">${fmtNumber(r.consumo)}</td>
+        <td class="num">${fmtNumber(r.compensada)}</td>
+        <td class="num">${fmtNumberDec(r.saldo, 1)}</td>
+        <td>${fmtDateBR(r.vencimento)}</td>
+        <td class="num">${fmtMoney(r.valorGrid)}</td>
+        <td class="num">${fmtMoney(r.valorCemig)}</td>
+        <td class="num pos-value">${fmtMoney(r.economia)}</td>
+        <td class="num">${fmtPct(r.economiaPct)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // Headers — seta ordenação
+  document.querySelectorAll('#exploreHead th').forEach(th => {
+    th.classList.remove('sorted-asc','sorted-desc');
+    if (th.dataset.col === s.sortCol) {
+      th.classList.add(s.sortDir === 'asc' ? 'sorted-asc' : 'sorted-desc');
+      th.querySelector('.sort-arr').textContent = s.sortDir === 'asc' ? '▲' : '▼';
+    } else {
+      th.querySelector('.sort-arr').textContent = '▲▼';
+    }
+  });
+
+  // Resumos dinâmicos
+  const t = totals(s.filtered);
+  document.getElementById('sumRegs').textContent = fmtNumber(total);
+  document.getElementById('sumCons').textContent = fmtNumber(t.consumo) + ' kWh';
+  document.getElementById('sumComp').textContent = fmtNumber(t.compensada) + ' kWh';
+  document.getElementById('sumCemig').textContent = fmtMoney(t.valorCemig);
+  document.getElementById('sumEcon').textContent = fmtMoney(t.economia);
+
+  // Paginação
+  const pi = document.getElementById('pagInfo');
+  pi.textContent = total === 0
+    ? '0 registros'
+    : `Exibindo ${start+1}-${Math.min(end, total)} de ${fmtNumber(total)} registros`;
+
+  renderPagination(totalPages);
+
+  document.getElementById('pagPrev').disabled = s.page <= 1;
+  document.getElementById('pagNext').disabled = s.page >= totalPages;
+}
+
+/* ============================================================
+   ABA INADIMPLÊNCIA — KPIs + tabela detalhada
+   Filtra por status === 'Inadimplente' E respeita o período global.
+   ============================================================ */
+function renderInadimplencia() {
+  // Aplica filtros globais (período + consumidor) — mesmo critério das outras abas
+  const filtered = getFilteredData();
+  const inad = filtered.filter(r => (r.status || '').toLowerCase() === 'inadimplente');
+
+  // ── KPIs ────────────────────────────────────────────────────────────
+  const totalDevido = inad.reduce((s, r) => s + (r.valorGrid || 0), 0);
+  const faturasAtraso = inad.length;
+
+  // Maior devedor: agrupa por instalação, soma valorGrid, pega o topo.
+  // Usa o nome do consumidor para exibição (mais legível que o número da instalação).
+  const porInstalacao = {};
+  inad.forEach(r => {
+    const k = r.instalacao;
+    if (!porInstalacao[k]) {
+      porInstalacao[k] = { instalacao: k, consumidor: r.consumidor || k, total: 0 };
+    }
+    porInstalacao[k].total += (r.valorGrid || 0);
+  });
+  const maiorDevedor = Object.values(porInstalacao).sort((a, b) => b.total - a.total)[0];
+
+  const cards = [
+    {
+      label: 'Total Inadimplente',
+      value: fmtMoney(totalDevido),
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+      sub: 'Soma do valor GRID em aberto',
+      highlight: true
+    },
+    {
+      label: 'Faturas em Atraso',
+      value: fmtNumber(faturasAtraso),
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+      sub: `${Object.keys(porInstalacao).length} instalação(ões) afetada(s)`
+    },
+    {
+      label: 'Maior Devedor',
+      value: maiorDevedor ? fmtMoney(maiorDevedor.total) : 'R$ 0,00',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      sub: maiorDevedor ? maiorDevedor.consumidor : 'Sem inadimplência no período'
+    }
+  ];
+
+  const grid = document.getElementById('kpiGridInad');
+  grid.innerHTML = cards.map(c => `
+    <div class="kpi-card ${c.highlight?'kpi-highlight':''}">
+      <div class="kpi-header">
+        <span class="kpi-label">${c.label}</span>
+        <span class="kpi-icon">${c.icon}</span>
+      </div>
+      <div class="kpi-value">${c.value}</div>
+      ${c.sub ? `<div class="kpi-sub">${c.sub}</div>` : ''}
+    </div>
+  `).join('');
+
+  // ── Tabela de detalhamento ──────────────────────────────────────────
+  const tbody = document.getElementById('inadBody');
+  const info  = document.getElementById('pagInfoInad');
+
+  if (inad.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Nenhuma inadimplência no período selecionado.</td></tr>`;
+    info.textContent = '0 registros';
+    return;
+  }
+
+  // Ordenação padrão: maior valor devido primeiro
+  const sorted = [...inad].sort((a, b) => (b.valorGrid || 0) - (a.valorGrid || 0));
+
+  tbody.innerHTML = sorted.map(r => `
+    <tr>
+      <td>${r.instalacao}</td>
+      <td>${r.consumidor || '—'}</td>
+      <td>${fmtMonthLabel(r.referencia)}</td>
+      <td>${r.vencimento ? fmtDateBR(r.vencimento) : '—'}</td>
+      <td><span class="status-badge status-inad">${r.status}</span></td>
+      <td class="num">${fmtMoney(r.valorGrid)}</td>
+    </tr>
+  `).join('');
+
+  info.textContent = `${sorted.length} registro${sorted.length === 1 ? '' : 's'} — total: ${fmtMoney(totalDevido)}`;
+}
+
+function renderPagination(totalPages) {
+  const s = STATE.explore;
+  const container = document.getElementById('pagPages');
+  const current = s.page;
+  let pages = [];
+
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (current > 3) pages.push('...');
+    const start = Math.max(2, current - 1);
+    const end = Math.min(totalPages - 1, current + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (current < totalPages - 2) pages.push('...');
+    pages.push(totalPages);
+  }
+
+  container.innerHTML = pages.map(p => {
+    if (p === '...') return `<span style="padding: 0 6px; color: var(--text-muted);">…</span>`;
+    return `<button class="pag-btn ${p === current ? 'active' : ''}" data-page="${p}">${p}</button>`;
+  }).join('');
+
+  container.querySelectorAll('.pag-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      s.page = Number(btn.dataset.page);
+      renderExploreTable();
+    });
+  });
+}
+
+/* ============================================================
+   HANDLERS — filtros, ordenação, paginação, export
+   ============================================================ */
+document.getElementById('fInstal').addEventListener('change', e => {
+  STATE.explore.instal = e.target.value;
+  applyExploreFilters();
+});
+
+// Debounce da busca
+let buscaTimer = null;
+document.getElementById('fBusca').addEventListener('input', e => {
+  clearTimeout(buscaTimer);
+  buscaTimer = setTimeout(() => {
+    STATE.explore.busca = e.target.value;
+    applyExploreFilters();
+  }, 250);
+});
+
+// Limpar: zera filtros locais E o período global (do header), atualizando ambas as abas
+document.getElementById('btnClear').addEventListener('click', () => {
+  document.getElementById('fInstal').value = '';
+  document.getElementById('fBusca').value = '';
+  periodIniEl.value = '';
+  periodFimEl.value = '';
+  Object.assign(STATE.explore, { instal: '', busca: '' });
+  STATE.monthIni = '';
+  STATE.monthFim = '';
+  updateDashboard();
+  applyExploreFilters();
+  updatePeriodIndicator();
+});
+
+// Ordenação por coluna
+document.querySelectorAll('#exploreHead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col;
+    const s = STATE.explore;
+    if (s.sortCol === col) {
+      s.sortDir = s.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      s.sortCol = col;
+      s.sortDir = (['consumo','compensada','saldo','valorGrid','valorCemig','economia','economiaPct'].includes(col)) ? 'desc' : 'asc';
+    }
+    applyExploreFilters();
+  });
+});
+
+// Paginação
+document.getElementById('pageSize').addEventListener('change', e => {
+  STATE.explore.pageSize = Number(e.target.value);
+  STATE.explore.page = 1;
+  renderExploreTable();
+});
+document.getElementById('pagPrev').addEventListener('click', () => {
+  if (STATE.explore.page > 1) { STATE.explore.page--; renderExploreTable(); }
+});
+document.getElementById('pagNext').addEventListener('click', () => {
+  const tp = Math.max(1, Math.ceil(STATE.explore.filtered.length / STATE.explore.pageSize));
+  if (STATE.explore.page < tp) { STATE.explore.page++; renderExploreTable(); }
+});
+
+/* ============================================================
+   EXPORT CSV
+   ============================================================ */
+document.getElementById('btnExport').addEventListener('click', () => {
+  const rows = STATE.explore.filtered;
+  if (!rows.length) { alert('Nenhum registro para exportar.'); return; }
+  const header = ['Empresa','Instalação','Referência','Consumo (kWh)','Energia Compensada (kWh)','Saldo','Vencimento','Valor GRID (R$)','Valor Cemig (R$)','Economia Mensal (R$)','Economia %'];
+  const csvRows = rows.map(r => [
+    extractNomeBase(r.consumidor || '').toUpperCase(),
+    r.instalacao,
+    fmtDateBR(r.referencia),
+    r.consumo,
+    r.compensada,
+    String(r.saldo).replace('.', ','),
+    fmtDateBR(r.vencimento),
+    String(r.valorGrid).replace('.', ','),
+    String(r.valorCemig).replace('.', ','),
+    String(r.economia).replace('.', ','),
+    (r.economiaPct * 100).toFixed(1) + '%'
+  ]);
+  const csv = [header, ...csvRows].map(row =>
+    row.map(c => {
+      const s = String(c);
+      return s.includes(';') || s.includes('"') ? `"${s.replace(/"/g, '""')}"` : s;
+    }).join(';')
+  ).join('\n');
+
+  const bom = '\uFEFF'; // UTF-8 BOM para Excel reconhecer acentos
+  const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `relatorio_export_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* ============================================================
+   INICIALIZAÇÃO
+   Sincroniza UI <-> estado e dispara a primeira renderização
+   já com o período padrão (janeiro do ano vigente até o último mês com dados) aplicado.
+   ============================================================ */
+function initDashboard() {
+  // Sincroniza os inputs com o estado padrão (defesa em profundidade —
+  // mesmo que o atributo value="" do HTML não seja honrado).
+  periodIniEl.value = STATE.monthIni;
+  periodFimEl.value = STATE.monthFim;
+
+  // Popula o dropdown de empresas com os nomes-base detectados pelo gerador.
+  // Em bases de cliente Unitário, CONSUMER_NAMES tem 1 item e o picker fica oculto.
+  const consumerSel = document.getElementById('consumerSelect');
+  const consumerPicker = document.querySelector('.consumer-picker');
+  if (CONSUMER_NAMES.length > 1) {
+    CONSUMER_NAMES.forEach(nome => {
+      const opt = document.createElement('option');
+      opt.value = nome;
+      opt.textContent = nome.toUpperCase();
+      consumerSel.appendChild(opt);
+    });
+    consumerSel.addEventListener('change', () => {
+      STATE.consumidor = consumerSel.value;
+      // Cascata: repopula select de instalação e reseta para "Todas"
+      populateInstalacaoSelect();
+      STATE.explore.instal = '';
+      document.getElementById('fInstal').value = '';
+      // Re-renderiza tudo
+      updateDashboard();
+      applyExploreFilters();
+      renderInadimplencia();
+    });
+  } else {
+    // Em base unitária o picker não faz sentido — mantém o markup mas oculta
+    if (consumerPicker) consumerPicker.style.display = 'none';
+  }
+
+  // Popula o select de instalações e renderiza todas as abas filtradas.
+  populateInstalacaoSelect();
+  updateDashboard();
+  applyExploreFilters();   // garante que a tabela da Exploração já abre filtrada
+  renderInadimplencia();   // pré-renderiza KPIs e tabela da aba Inadimplência
+  updatePeriodIndicator();
+}
+
+// Garante execução após o parser do HTML (em qualquer ordem de carregamento)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDashboard);
+} else {
+  initDashboard();
+}
+
+</script>
+</body>
+</html>
