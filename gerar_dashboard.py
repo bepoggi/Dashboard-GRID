@@ -29,6 +29,7 @@ import pandas as pd
 
 
 TEMPLATE_PATH = Path(__file__).parent / 'dashboard_template.html'
+TEMPLATE_GRUPO_PATH = Path(__file__).parent / 'dashboard_grupo.html'
 LIMIAR_DESCARTE = 0.30
 STATUS_DESCARTAR = 'Aguardando Boleto'
 
@@ -91,6 +92,71 @@ def filtrar_aguardando_boleto(df: pd.DataFrame) -> tuple[pd.DataFrame, int]:
     return df[~mask].copy(), qtd
 
 
+# ============================================================
+# ROTEADOR INTELIGENTE — decide entre template Unitário e Grupo
+# ============================================================
+
+def extrair_nome_base(consumidor: str) -> str:
+    """
+    Extrai o "nome base" da razão social, removendo sufixos de filial
+    e normalizando variações comuns de cadastro.
+
+    Exemplos:
+      "LOCALIZA RENT A CAR SA - ACUBA"     -> "localiza rent a car sa"
+      "LOCALIZA RENT A CAR SA - ACPAT"     -> "localiza rent a car sa"
+      "ARCELORMITTAL BRASIL S.A"           -> "arcelormittal brasil sa"
+      "ARCELORMITTAL BRASIL S A"           -> "arcelormittal brasil sa"
+      "ARCELORMITTAL BRASIL S/A"           -> "arcelormittal brasil sa"
+      "ARCELORMITTAL BIOFLORESTAS LTDA."   -> "arcelormittal bioflorestas ltda"
+
+    A regra é:
+      1) Divide por " - " e fica com o trecho anterior ao primeiro hífen
+         (que tipicamente carrega o nome da filial)
+      2) Normaliza variações de sufixos jurídicos: S.A./S A/S/A -> SA;
+         LTDA./EIRELI./ME./EPP. -> sem ponto final
+      3) Colapsa múltiplos espaços
+    """
+    if not consumidor or pd.isna(consumidor):
+        return ''
+    nome = str(consumidor).strip()
+    base = nome.split(' - ')[0].strip().lower()
+
+    # Normaliza sufixos jurídicos comuns no final do nome.
+    # A regex usa \b para casar apenas nessas palavras como tokens isolados,
+    # não dentro de outras (ex.: não vai mexer em "MESA" por causa do "ME").
+    SUFIXOS_JURIDICOS = r'\b(s[\s\./]*a|ltda|eireli|me|epp|mei|s/a|sa)\b\.?'
+    def normaliza_sufixo(match):
+        token = match.group(1).replace('.', '').replace('/', '').replace(' ', '')
+        # 's/a', 's.a', 's a', 'sa' viram todos 'sa'
+        if token in ('sa', 'sa', 'sa'):
+            return 'sa'
+        return token
+    base = re.sub(SUFIXOS_JURIDICOS, normaliza_sufixo, base)
+
+    # Colapsa múltiplos espaços em um só
+    base = re.sub(r'\s+', ' ', base).strip()
+
+    return base
+
+
+def detectar_tipo_cliente(df: pd.DataFrame) -> tuple[str, list[str]]:
+    """
+    Decide entre 'unitario' e 'grupo' com base nos nomes-base distintos.
+    Retorna (tipo, lista_de_nomes_base_unicos).
+    """
+    nomes_base = (
+        df['Consumidor']
+        .dropna()
+        .map(extrair_nome_base)
+        .replace('', pd.NA)
+        .dropna()
+        .unique()
+        .tolist()
+    )
+    tipo = 'grupo' if len(nomes_base) > 1 else 'unitario'
+    return tipo, sorted(nomes_base)
+
+
 def descartar_ultimo_mes_se_incompleto(df: pd.DataFrame) -> tuple[pd.DataFrame, str | None]:
     df = df.copy()
     df['_ym'] = df['Referência'].dt.strftime('%Y-%m')
@@ -128,8 +194,14 @@ def transformar_para_json(df: pd.DataFrame) -> list[dict]:
         economia = float(r['Economia Mensal'])
         economia_pct = economia / valor_cemig if valor_cemig > 0 else 0.0
 
+        # Consumidor e Status são preservados para a aba Inadimplência.
+        # Strip remove espaços perdidos comuns em exports de CSV.
+        consumidor = str(r['Consumidor']).strip() if pd.notna(r['Consumidor']) else ''
+        status = str(r['Status']).strip() if pd.notna(r['Status']) else ''
+
         registros.append({
             'instalacao': r['Instalação'],
+            'consumidor': consumidor,
             'referencia': r['Referência'],
             'consumo': float(r['Consumo']),
             'compensada': float(r['Energia Compensada']),
@@ -138,7 +210,8 @@ def transformar_para_json(df: pd.DataFrame) -> list[dict]:
             'valorGrid': float(r['Valor']),
             'valorCemig': valor_cemig,
             'economia': economia,
-            'economiaPct': economia_pct
+            'economiaPct': economia_pct,
+            'status': status
         })
 
     return registros
@@ -170,14 +243,22 @@ def calcular_periodos(registros: list[dict]) -> dict:
 
 
 def gerar_html(nome_cliente: str, registros: list[dict],
-               periodos: dict, path_saida: Path) -> None:
-    template = TEMPLATE_PATH.read_text(encoding='utf-8')
+               periodos: dict, path_saida: Path,
+               template_path: Path, nomes_consumidores: list[str] | None = None) -> None:
+    template = template_path.read_text(encoding='utf-8')
 
     substituicoes = {
         '__CLIENTE_NOME__': nome_cliente.upper(),
         '__RAW_DATA__': json.dumps(registros, ensure_ascii=False, separators=(',', ':')),
         **periodos
     }
+
+    # Marcador específico do template de grupo. Se o template for unitário,
+    # ele simplesmente não terá esse marcador e a substituição é silenciosa.
+    if '__CONSUMER_NAMES__' in template:
+        substituicoes['__CONSUMER_NAMES__'] = json.dumps(
+            nomes_consumidores or [], ensure_ascii=False, separators=(',', ':')
+        )
 
     html = template
     for marker, valor in substituicoes.items():
@@ -214,6 +295,20 @@ def main():
     if qtd_aguard:
         print(f"⏸  {qtd_aguard} linhas descartadas (Status = 'Aguardando Boleto')")
 
+    # ── Roteador Inteligente ──────────────────────────────────────────
+    tipo_cliente, nomes_base = detectar_tipo_cliente(df)
+    if tipo_cliente == 'grupo':
+        print(f"🏢 Template de Grupo acionado — {len(nomes_base)} clientes distintos detectados:")
+        for n in nomes_base:
+            print(f"     • {n}")
+        template_path = TEMPLATE_GRUPO_PATH
+        if not template_path.exists():
+            print(f"❌ Template de grupo não encontrado: {template_path}")
+            sys.exit(1)
+    else:
+        print(f"👤 Cliente Unitário detectado: {nomes_base[0] if nomes_base else '(sem consumidor)'}")
+        template_path = TEMPLATE_PATH
+
     df, mes_descartado = descartar_ultimo_mes_se_incompleto(df)
     if mes_descartado:
         print(f"⚠️  Mês incompleto descartado: {mes_descartado} (≤{int(LIMIAR_DESCARTE*100)}% da média)")
@@ -231,8 +326,11 @@ def main():
     print(f"   Período: {periodos['__PERIOD_MIN__']} → {periodos['__PERIOD_MAX__']}")
     print(f"   Filtro padrão: {periodos['__DEFAULT_INI__']} → {periodos['__DEFAULT_FIM__']}")
     print(f"📝 Cliente: {nome_cliente.upper()}")
+    print(f"📄 Template: {template_path.name}")
 
-    gerar_html(nome_cliente, registros, periodos, path_saida)
+    gerar_html(nome_cliente, registros, periodos, path_saida,
+               template_path=template_path,
+               nomes_consumidores=nomes_base if tipo_cliente == 'grupo' else None)
     print(f"✅ Dashboard gerado: {path_saida}  ({path_saida.stat().st_size:,} bytes)")
 
 
