@@ -690,6 +690,21 @@ body {
   font-style: italic;
 }
 
+/* Status badge — usado na aba Inadimplência */
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.status-badge.status-inad {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
 /* Pagination */
 .pagination-bar {
   display: flex;
@@ -784,6 +799,7 @@ body {
         <div class="tabs" role="tablist">
           <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
           <button class="tab-btn" data-tab="explore">Exploração de Dados</button>
+          <button class="tab-btn" data-tab="inadimplencia">Inadimplência</button>
         </div>
         <div class="period-picker" role="group" aria-label="Filtro de período">
           <div class="period-field">
@@ -989,6 +1005,32 @@ body {
           <div id="pagPages" style="display:flex; gap:4px;"></div>
           <button class="pag-btn" id="pagNext">Próxima ›</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PÁGINA INADIMPLÊNCIA ============ -->
+  <div class="page" id="page-inadimplencia">
+    <div class="kpi-grid" id="kpiGridInad" style="grid-template-columns: repeat(3, 1fr);"></div>
+
+    <div class="explore-table-wrap" style="margin-top: 24px;">
+      <div class="table-scroll">
+        <table class="explore-table" id="inadTable">
+          <thead>
+            <tr>
+              <th data-col-inad="instalacao">Instalação<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="consumidor">Consumidor<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="referencia">Referência<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="vencimento">Vencimento<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="status">Status<span class="sort-arr">▲▼</span></th>
+              <th data-col-inad="valorGrid" class="num">Valor Devido<span class="sort-arr">▲▼</span></th>
+            </tr>
+          </thead>
+          <tbody id="inadBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="pag-info" id="pagInfoInad">—</div>
       </div>
     </div>
   </div>
@@ -1679,6 +1721,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + tab).classList.add('active');
     if (tab === 'explore') renderExploreTable();
+    if (tab === 'inadimplencia') renderInadimplencia();
   });
 });
 
@@ -1714,9 +1757,10 @@ function applyPeriodChange() {
   STATE.monthIni = ini;
   STATE.monthFim = fim;
 
-  // Atualiza ambas as abas — fonte única da verdade
+  // Atualiza todas as abas — fonte única da verdade
   updateDashboard();
   applyExploreFilters();
+  renderInadimplencia();
   updatePeriodIndicator();
 }
 
@@ -1730,6 +1774,7 @@ document.getElementById('periodClear').addEventListener('click', () => {
   STATE.monthFim = '';
   updateDashboard();
   applyExploreFilters();
+  renderInadimplencia();
   updatePeriodIndicator();
 });
 
@@ -1855,6 +1900,92 @@ function renderExploreTable() {
 
   document.getElementById('pagPrev').disabled = s.page <= 1;
   document.getElementById('pagNext').disabled = s.page >= totalPages;
+}
+
+/* ============================================================
+   ABA INADIMPLÊNCIA — KPIs + tabela detalhada
+   Filtra por status === 'Inadimplente' E respeita o período global.
+   ============================================================ */
+function renderInadimplencia() {
+  // Aplica filtro de período global (mesmo critério das outras abas)
+  const filtered = filterByPeriod(RAW_DATA);
+  const inad = filtered.filter(r => (r.status || '').toLowerCase() === 'inadimplente');
+
+  // ── KPIs ────────────────────────────────────────────────────────────
+  const totalDevido = inad.reduce((s, r) => s + (r.valorGrid || 0), 0);
+  const faturasAtraso = inad.length;
+
+  // Maior devedor: agrupa por instalação, soma valorGrid, pega o topo.
+  // Usa o nome do consumidor para exibição (mais legível que o número da instalação).
+  const porInstalacao = {};
+  inad.forEach(r => {
+    const k = r.instalacao;
+    if (!porInstalacao[k]) {
+      porInstalacao[k] = { instalacao: k, consumidor: r.consumidor || k, total: 0 };
+    }
+    porInstalacao[k].total += (r.valorGrid || 0);
+  });
+  const maiorDevedor = Object.values(porInstalacao).sort((a, b) => b.total - a.total)[0];
+
+  const cards = [
+    {
+      label: 'Total Inadimplente',
+      value: fmtMoney(totalDevido),
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+      sub: 'Soma do valor GRID em aberto',
+      highlight: true
+    },
+    {
+      label: 'Faturas em Atraso',
+      value: fmtNumber(faturasAtraso),
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+      sub: `${Object.keys(porInstalacao).length} instalação(ões) afetada(s)`
+    },
+    {
+      label: 'Maior Devedor',
+      value: maiorDevedor ? fmtMoney(maiorDevedor.total) : 'R$ 0,00',
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      sub: maiorDevedor ? maiorDevedor.consumidor : 'Sem inadimplência no período'
+    }
+  ];
+
+  const grid = document.getElementById('kpiGridInad');
+  grid.innerHTML = cards.map(c => `
+    <div class="kpi-card ${c.highlight?'kpi-highlight':''}">
+      <div class="kpi-header">
+        <span class="kpi-label">${c.label}</span>
+        <span class="kpi-icon">${c.icon}</span>
+      </div>
+      <div class="kpi-value">${c.value}</div>
+      ${c.sub ? `<div class="kpi-sub">${c.sub}</div>` : ''}
+    </div>
+  `).join('');
+
+  // ── Tabela de detalhamento ──────────────────────────────────────────
+  const tbody = document.getElementById('inadBody');
+  const info  = document.getElementById('pagInfoInad');
+
+  if (inad.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">Nenhuma inadimplência no período selecionado.</td></tr>`;
+    info.textContent = '0 registros';
+    return;
+  }
+
+  // Ordenação padrão: maior valor devido primeiro
+  const sorted = [...inad].sort((a, b) => (b.valorGrid || 0) - (a.valorGrid || 0));
+
+  tbody.innerHTML = sorted.map(r => `
+    <tr>
+      <td>${r.instalacao}</td>
+      <td>${r.consumidor || '—'}</td>
+      <td>${fmtMonthLabel(r.referencia)}</td>
+      <td>${r.vencimento ? fmtDateBR(r.vencimento) : '—'}</td>
+      <td><span class="status-badge status-inad">${r.status}</span></td>
+      <td class="num">${fmtMoney(r.valorGrid)}</td>
+    </tr>
+  `).join('');
+
+  info.textContent = `${sorted.length} registro${sorted.length === 1 ? '' : 's'} — total: ${fmtMoney(totalDevido)}`;
 }
 
 function renderPagination(totalPages) {
@@ -2000,6 +2131,7 @@ function initDashboard() {
   populateInstalacaoSelect();
   updateDashboard();
   applyExploreFilters();   // garante que a tabela da Exploração já abre filtrada
+  renderInadimplencia();   // pré-renderiza KPIs e tabela da aba Inadimplência
   updatePeriodIndicator();
 }
 
